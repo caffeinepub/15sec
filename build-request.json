@@ -1,0 +1,69 @@
+{
+  "kind": "build_request",
+  "title": "Add unique visitor counters (daily, weekly, monthly, all-time) to Admin Dashboard",
+  "projectName": "15sec",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Add backend state and logic to track unique authenticated visitors by Principal ID across four time periods: daily (00:01–23:59, resets each day), weekly (Monday 00:01–Sunday 23:59, resets each week), monthly (per calendar month, resets each year on Jan 1), and all-time (never resets). Each Principal is counted at most once per period. Expose a query function (e.g., `getVisitorStats`) that returns the four counts, and an update function (e.g., `recordVisit`) that accepts the caller's Principal and increments the appropriate counters only if that Principal has not already been counted in the current period.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "add unique visits(meaning +1 for every ID that visits during that period of time, daily visit being the smallest time period",
+          "only authenticated user that has Principal ID"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Calling `recordVisit` with the same Principal multiple times in the same day only increments the daily counter once.",
+        "Daily counter resets to 0 at the start of a new calendar day.",
+        "Weekly counter resets to 0 at the start of each Monday.",
+        "Monthly counter resets to 0 at the start of each new calendar year (January 1).",
+        "All-time counter never resets and accumulates across all periods.",
+        "`getVisitorStats` returns correct values for all four counters.",
+        "Anonymous (unauthenticated) callers are ignored and do not increment any counter."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "On the Admin Dashboard page (`frontend/src/pages/AdminDashboardPage.tsx`), add four new stat counter cards below the existing 'Active Accounts' and 'Total Users' cards. The four new cards must be labeled: 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'. Each card must display the count returned from the backend `getVisitorStats` query. On page load, call the backend `recordVisit` function once using the authenticated user's Principal ID to record the admin's visit. Match the existing card style (dark rounded card, muted label, large bold number) as shown in the uploaded screenshot.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "page is ready, only add counters to the two counters we already have. See the picture.",
+          "daily 00.01-23.59(resets to 0 every day), 2. weekly (monday 00.01-sunday 23.59) resets every week, 3. monthly (january-december) resets every year. 4. All time."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Four new stat cards appear below the existing 'Active Accounts' and 'Total Users' cards on the Admin Dashboard.",
+        "Cards are labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'.",
+        "Each card displays the correct count fetched from the backend.",
+        "The visitor counters visually match the style of the existing 'Active Accounts' and 'Total Users' cards.",
+        "The admin's own visit is recorded via `recordVisit` on page load.",
+        "The page only calls `recordVisit` for authenticated users with a valid Principal ID."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify the existing 'Active Accounts' or 'Total Users' counter cards.",
+    "Only authenticated users with a Principal ID may have their visit recorded; anonymous access must be ignored.",
+    "Immutable frontend paths (hooks, main.tsx, ui components) must not be modified."
+  ],
+  "nonGoals": [
+    "Tracking anonymous or unauthenticated visitors.",
+    "Displaying visitor counters on any page other than /admin.",
+    "Adding any other new admin features beyond the four visitor counters."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

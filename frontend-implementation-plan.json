@@ -1,0 +1,31 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add unique visitor counters (daily, weekly, monthly, all-time) to Admin Dashboard",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Add four visitor counter stat cards to Admin Dashboard page and record admin visits on page load",
+      "acceptanceCriteria": [
+        "Four new stat cards appear below the existing 'Active Accounts' and 'Total Users' cards on the Admin Dashboard.",
+        "Cards are labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'.",
+        "Each card displays the correct count fetched from the backend.",
+        "The visitor counters visually match the style of the existing 'Active Accounts' and 'Total Users' cards.",
+        "The admin's own visit is recorded via `recordVisit` on page load.",
+        "The page only calls `recordVisit` for authenticated users with a valid Principal ID."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add two new React Query hooks: `useGetVisitorStats` to fetch the visitor statistics from the backend `getVisitorStats` query, and `useRecordVisit` mutation to call the backend `recordVisit` update function. The `useGetVisitorStats` hook should return the VisitorStats object containing daily, weekly, monthly, and allTime visitor counts. The `useRecordVisit` mutation should accept no parameters and call the backend recordVisit function, which internally uses the caller's Principal ID. Use the authorization component to ensure the caller is authenticated before recording visits."
+        },
+        {
+          "path": "frontend/src/pages/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Add four new visitor counter stat cards below the existing 'Active Accounts' and 'Total Users' cards. The new cards must be labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors', matching the existing card style (dark rounded card with muted label and large bold number). Import and use the `useGetVisitorStats` hook to fetch the visitor statistics. On component mount, use the `useRecordVisit` mutation to record the current admin's visit. Ensure `recordVisit` is only called once per page load and only for authenticated users with a valid Principal ID. Display loading states for visitor stats while data is being fetched. Maintain the existing 'Active Accounts' and 'Total Users' card implementations without modification."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-on-the-admin-dashboard-page-frontend-src-pages-admindashboardpage-tsx-add-four-new-stat-counter-cards-below-the-existing-active-accounts-and-total-users-cards-the-four-new-cards-must-be-labeled-daily-visitors-weekly-visitors-monthly-visitors-and-all-time-visitors-each-card-must-display-the-count-returned-from-the-backend-getvisitorstats-query-on-page-load-call-the-backend-recordvisit-function-once-using-the-authenticated-user-s-principal-id-to-record-the-admin-s-visit-match-the-existing-card-style-dark-rounded-card-muted-label-large-bold-number-as-shown-in-the-uploaded-screenshot",
+      "featureTitle": "On the Admin Dashboard page (`frontend/src/pages/AdminDashboardPage.tsx`), add four new stat counter cards below the existing 'Active Accounts' and 'Total Users' cards. The four new cards must be labeled: 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'. Each card must display the count returned from the backend `getVisitorStats` query. On page load, call the backend `recordVisit` function once using the authenticated user's Principal ID to record the admin's visit. Match the existing card style (dark rounded card, muted label, large bold number) as shown in the uploaded screenshot.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/AdminDashboardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

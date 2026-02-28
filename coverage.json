@@ -1,0 +1,53 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-27T20:37:15.627Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 2,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Add backend state and logic to track unique authenticated visitors by Principal ID across four time periods: daily (00:01–23:59, resets each day), weekly (Monday 00:01–Sunday 23:59, resets each week), monthly (per calendar month, resets each year on Jan 1), and all-time (never resets). Each Principal is counted at most once per period. Expose a query function (e.g., `getVisitorStats`) that returns the four counts, and an update function (e.g., `recordVisit`) that accepts the caller's Principal and increments the appropriate counters only if that Principal has not already been counted in the current period.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "On the Admin Dashboard page (`frontend/src/pages/AdminDashboardPage.tsx`), add four new stat counter cards below the existing 'Active Accounts' and 'Total Users' cards. The four new cards must be labeled: 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'. Each card must display the count returned from the backend `getVisitorStats` query. On page load, call the backend `recordVisit` function once using the authenticated user's Principal ID to record the admin's visit. Match the existing card style (dark rounded card, muted label, large bold number) as shown in the uploaded screenshot.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/AdminDashboardPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/AdminDashboardPage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminDashboardPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

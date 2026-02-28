@@ -1,0 +1,35 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-27T20:37:15.624Z",
+  "summary": "The diff implements both REQ-1 (backend visitor tracking) and REQ-2 (frontend admin dashboard cards). The backend adds state, migration, getVisitorStats, and recordVisit. The frontend adds hooks and four new stat cards. Most requirements appear satisfied, but the monthly reset logic, weekly key structure, and anonymous caller guard cannot be fully verified due to truncated backend code.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Weekly counter resets to 0 at the start of each Monday (Monday 00:01-Sunday 23:59). The WeeklyKey uses {week: Int; day: Int} which is an unusual structure for a Monday-anchored weekly period and may not correctly implement Monday-based weekly resets.",
+      "reason": "The WeeklyKey type has both 'week' and 'day' fields, suggesting the key may track individual days within a week rather than a single weekly bucket. A correct Monday-based weekly reset should use a single week identifier. The actual recordVisit logic is truncated and cannot be verified.",
+      "evidence": [
+        "backend/main.mo",
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Anonymous (unauthenticated) callers must be ignored and not increment any counter.",
+      "reason": "The backend main.mo is truncated and the recordVisit function body is not visible, so it cannot be confirmed that anonymous principal checks are implemented.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminDashboardPage.tsx",
+    "project_state.json"
+  ]
+}
