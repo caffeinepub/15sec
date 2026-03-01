@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useLikePost, useIsCallerAdmin, useGetRepliesCountForPost, useGetUserProfile } from '../hooks/useQueries';
+import { useLikePost, useIsCallerAdmin, useGetRepliesCountForPost, useGetUserProfile, useDeleteVideoPost } from '../hooks/useQueries';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Share2, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Trash2, Loader2 } from 'lucide-react';
 import type { VideoPost } from '../backend';
 import ShareDialog from './ShareDialog';
 import ReplyDialog from './ReplyDialog';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -20,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface VideoPostCardProps {
   post: VideoPost;
@@ -36,11 +36,13 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const likePostMutation = useLikePost();
+  const deletePostMutation = useDeleteVideoPost();
   const { data: isAdmin } = useIsCallerAdmin();
   const { data: repliesCount } = useGetRepliesCountForPost(post.id);
   const { data: creatorProfile } = useGetUserProfile(post.creator.toString());
   const [showReplyDialog, setShowReplyDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isOwner = identity?.getPrincipal().toString() === post.creator.toString();
   const canDelete = isOwner || isAdmin;
@@ -57,9 +59,17 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
     }
   };
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(post.id);
+  const handleDelete = async () => {
+    try {
+      await deletePostMutation.mutateAsync(post.id);
+      setDeleteDialogOpen(false);
+      toast.success('Post deleted successfully');
+      if (onDelete) {
+        onDelete(post.id);
+      }
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast.error('Failed to delete post. Please try again.');
     }
   };
 
@@ -68,7 +78,8 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
     if (
       target.closest('button') ||
       target.closest('video') ||
-      target.closest('[role="dialog"]')
+      target.closest('[role="dialog"]') ||
+      target.closest('[role="alertdialog"]')
     ) {
       return;
     }
@@ -99,7 +110,7 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
               </div>
             </button>
             {canDelete && (
-              <AlertDialog>
+              <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
                   <Button variant="ghost" size="icon">
                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -113,13 +124,16 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
+                    <AlertDialogCancel disabled={deletePostMutation.isPending}>Cancel</AlertDialogCancel>
+                    <Button
+                      variant="destructive"
                       onClick={handleDelete}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deletePostMutation.isPending}
+                      className="gap-2"
                     >
-                      Delete
-                    </AlertDialogAction>
+                      {deletePostMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {deletePostMutation.isPending ? 'Deleting...' : 'Delete'}
+                    </Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

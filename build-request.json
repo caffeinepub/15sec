@@ -1,66 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Add unique visitor counters (daily, weekly, monthly, all-time) to Admin Dashboard",
-  "projectName": "15sec",
-  "priority": "normal",
+  "title": "Fix delete post and reply — dialog closes without deleting",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add backend state and logic to track unique authenticated visitors by Principal ID across four time periods: daily (00:01–23:59, resets each day), weekly (Monday 00:01–Sunday 23:59, resets each week), monthly (per calendar month, resets each year on Jan 1), and all-time (never resets). Each Principal is counted at most once per period. Expose a query function (e.g., `getVisitorStats`) that returns the four counts, and an update function (e.g., `recordVisit`) that accepts the caller's Principal and increments the appropriate counters only if that Principal has not already been counted in the current period.",
-      "target": "backend",
+      "text": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-recent-3"
         ],
         "quotes": [
-          "add unique visits(meaning +1 for every ID that visits during that period of time, daily visit being the smallest time period",
-          "only authenticated user that has Principal ID"
+          "dialog closes but nithing happens",
+          "same issue with posts, replies",
+          "no errors"
         ]
       },
       "acceptanceCriteria": [
-        "Calling `recordVisit` with the same Principal multiple times in the same day only increments the daily counter once.",
-        "Daily counter resets to 0 at the start of a new calendar day.",
-        "Weekly counter resets to 0 at the start of each Monday.",
-        "Monthly counter resets to 0 at the start of each new calendar year (January 1).",
-        "All-time counter never resets and accumulates across all periods.",
-        "`getVisitorStats` returns correct values for all four counters.",
-        "Anonymous (unauthenticated) callers are ignored and do not increment any counter."
+        "Clicking Delete in the Delete Post confirmation dialog removes the post from the backend.",
+        "The post disappears from the feed/UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the post is not removed from the UI."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "On the Admin Dashboard page (`frontend/src/pages/AdminDashboardPage.tsx`), add four new stat counter cards below the existing 'Active Accounts' and 'Total Users' cards. The four new cards must be labeled: 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'. Each card must display the count returned from the backend `getVisitorStats` query. On page load, call the backend `recordVisit` function once using the authenticated user's Principal ID to record the admin's visit. Match the existing card style (dark rounded card, muted label, large bold number) as shown in the uploaded screenshot.",
-      "target": "both",
+      "text": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-recent-3"
         ],
         "quotes": [
-          "page is ready, only add counters to the two counters we already have. See the picture.",
-          "daily 00.01-23.59(resets to 0 every day), 2. weekly (monday 00.01-sunday 23.59) resets every week, 3. monthly (january-december) resets every year. 4. All time."
+          "same issue with posts, replies"
         ]
       },
       "acceptanceCriteria": [
-        "Four new stat cards appear below the existing 'Active Accounts' and 'Total Users' cards on the Admin Dashboard.",
-        "Cards are labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'.",
-        "Each card displays the correct count fetched from the backend.",
-        "The visitor counters visually match the style of the existing 'Active Accounts' and 'Total Users' cards.",
-        "The admin's own visit is recorded via `recordVisit` on page load.",
-        "The page only calls `recordVisit` for authenticated users with a valid Principal ID."
+        "Clicking Delete in the Delete Reply confirmation dialog removes the reply from the backend.",
+        "The reply disappears from the UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the reply is not removed from the UI."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent-3"
+        ],
+        "quotes": [
+          "no errors"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The mutation hooks call the correct backend actor methods with the correct ID.",
+        "On mutation success, affected query caches are invalidated so the deleted item no longer appears.",
+        "No silent failures — errors from the backend surface as mutation errors."
       ]
     }
   ],
   "constraints": [
-    "Do not modify the existing 'Active Accounts' or 'Total Users' counter cards.",
-    "Only authenticated users with a Principal ID may have their visit recorded; anonymous access must be ignored.",
-    "Immutable frontend paths (hooks, main.tsx, ui components) must not be modified."
+    "Do not change the backend delete function signatures or data models.",
+    "Do not modify any file listed under frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Tracking anonymous or unauthenticated visitors.",
-    "Displaying visitor counters on any page other than /admin.",
-    "Adding any other new admin features beyond the four visitor counters."
+    "Adding undo/restore functionality for deleted posts or replies.",
+    "Changing the visual design of the delete confirmation dialog.",
+    "Fixing any other unrelated bugs."
   ],
   "imageRequirements": {
     "required": [],

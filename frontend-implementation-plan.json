@@ -1,29 +1,53 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add unique visitor counters (daily, weekly, monthly, all-time) to Admin Dashboard",
+  "title": "Fix delete post and reply — dialog closes without deleting",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Add four visitor counter stat cards to Admin Dashboard page and record admin visits on page load",
+      "id": "REQ-1",
+      "summary": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
       "acceptanceCriteria": [
-        "Four new stat cards appear below the existing 'Active Accounts' and 'Total Users' cards on the Admin Dashboard.",
-        "Cards are labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'.",
-        "Each card displays the correct count fetched from the backend.",
-        "The visitor counters visually match the style of the existing 'Active Accounts' and 'Total Users' cards.",
-        "The admin's own visit is recorded via `recordVisit` on page load.",
-        "The page only calls `recordVisit` for authenticated users with a valid Principal ID."
+        "Clicking Delete in the Delete Post confirmation dialog removes the post from the backend.",
+        "The post disappears from the feed/UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the post is not removed from the UI."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/VideoPostCard.tsx",
+          "operation": "modify",
+          "description": "Fix the handleDelete function to properly await the deleteVideoPost mutation before closing the AlertDialog. Ensure the delete confirmation button is disabled during the mutation, handle errors gracefully by keeping the dialog open and displaying an error message, and only close the dialog after successful deletion. Add loading state to the Delete button to provide user feedback during the async operation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
+      "acceptanceCriteria": [
+        "Clicking Delete in the Delete Reply confirmation dialog removes the reply from the backend.",
+        "The reply disappears from the UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the reply is not removed from the UI."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/VideoReplyCard.tsx",
+          "operation": "modify",
+          "description": "Fix the handleDelete function to properly await the deleteVideoReply mutation before closing the AlertDialog. Ensure the delete confirmation button is disabled during the mutation, handle errors gracefully by keeping the dialog open and displaying an error message, and only close the dialog after successful deletion. Add loading state to the Delete button to provide user feedback during the async operation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
+      "acceptanceCriteria": [
+        "The mutation hooks call the correct backend actor methods with the correct ID.",
+        "On mutation success, affected query caches are invalidated so the deleted item no longer appears.",
+        "No silent failures — errors from the backend surface as mutation errors."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add two new React Query hooks: `useGetVisitorStats` to fetch the visitor statistics from the backend `getVisitorStats` query, and `useRecordVisit` mutation to call the backend `recordVisit` update function. The `useGetVisitorStats` hook should return the VisitorStats object containing daily, weekly, monthly, and allTime visitor counts. The `useRecordVisit` mutation should accept no parameters and call the backend recordVisit function, which internally uses the caller's Principal ID. Use the authorization component to ensure the caller is authenticated before recording visits."
-        },
-        {
-          "path": "frontend/src/pages/AdminDashboardPage.tsx",
-          "operation": "modify",
-          "description": "Add four new visitor counter stat cards below the existing 'Active Accounts' and 'Total Users' cards. The new cards must be labeled 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors', matching the existing card style (dark rounded card with muted label and large bold number). Import and use the `useGetVisitorStats` hook to fetch the visitor statistics. On component mount, use the `useRecordVisit` mutation to record the current admin's visit. Ensure `recordVisit` is only called once per page load and only for authenticated users with a valid Principal ID. Display loading states for visitor stats while data is being fetched. Maintain the existing 'Active Accounts' and 'Total Users' card implementations without modification."
+          "description": "Audit and fix the useDeleteVideoPost and useDeleteVideoReply mutation hooks. Ensure they correctly call actor.deleteVideoPost(postId) and actor.deleteVideoReply(replyId) respectively, passing bigint IDs correctly. Verify that mutationFn properly awaits the backend call and that onSuccess handlers call queryClient.invalidateQueries(['videoPosts']) for posts and queryClient.invalidateQueries(['videoReplies', parentVideoId]) for replies. Add proper error handling so mutation errors propagate to the UI instead of failing silently."
         }
       ]
     }

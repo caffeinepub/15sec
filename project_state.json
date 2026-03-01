@@ -1,17 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project with an admin dashboard. Adding unique visitor tracking counters (daily, weekly, monthly, all-time) to the /admin page, tracking authenticated users by Principal ID.",
-  "architectural_notes": [
-    "Unique visitor tracking uses Principal ID (authenticated users only); anonymous visitors are not tracked",
-    "Visit counters: daily resets 00:01-23:59, weekly resets Monday 00:01, monthly resets Jan 1, all-time never resets"
+  "summary": "Video sharing app with posts and replies functionality. User reported delete confirmation dialog closes but doesn't actually delete posts or replies.",
+  "architectural_notes": [],
+  "known_issues": [
+    "Delete confirmation dialog closes without deleting post/reply — affects both posts and replies, no error shown"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-on-the-admin-dashboard-page-frontend-src-pages-admindashboardpage-tsx-add-four-new-stat-counter-cards-below-the-existing-active-accounts-and-total-users-cards-the-four-new-cards-must-be-labeled-daily-visitors-weekly-visitors-monthly-visitors-and-all-time-visitors-each-card-must-display-the-count-returned-from-the-backend-getvisitorstats-query-on-page-load-call-the-backend-recordvisit-function-once-using-the-authenticated-user-s-principal-id-to-record-the-admin-s-visit-match-the-existing-card-style-dark-rounded-card-muted-label-large-bold-number-as-shown-in-the-uploaded-screenshot",
-      "title": "On the Admin Dashboard page (`frontend/src/pages/AdminDashboardPage.tsx`), add four new stat counter cards below the existing 'Active Accounts' and 'Total Users' cards. The four new cards must be labeled: 'Daily Visitors', 'Weekly Visitors', 'Monthly Visitors', and 'All-Time Visitors'. Each card must display the count returned from the backend `getVisitorStats` query. On page load, call the backend `recordVisit` function once using the authenticated user's Principal ID to record the admin's visit. Match the existing card style (dark rounded card, muted label, large bold number) as shown in the uploaded screenshot.",
+      "id": "feature-fix-the-delete-post-mutation-in-videopostcard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideopost-function-awaits-the-result-and-invalidates-removes-the-post-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
+      "title": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-delete-reply-mutation-in-videoreplycard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideoreply-function-awaits-the-result-and-invalidates-removes-the-reply-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
+      "title": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
       "reqIds": [
         "REQ-2"
       ],
@@ -20,22 +27,16 @@
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Add unique visitor counters (daily, weekly, monthly, all-time) to /admin page tracking authenticated users by Principal ID",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add backend state and logic to track unique authenticated visitors by Principal ID across four time periods: daily (00:01–23:59, resets each day), weekly (Monday 00:01–Sunday 23:59, resets each week), monthly (per calendar month, resets each year on Jan 1), and all-time (never resets). Each Principal is counted at most once per period. Expose a query function (e.g., `getVisitorStats`) that returns the four counts, and an update function (e.g., `recordVisit`) that accepts the caller's Principal and increments the appropriate counters only if that Principal has not already been counted in the current period.",
+      "id": "AR-3",
+      "summary": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
       "reqIds": [
-        "REQ-1"
+        "REQ-3"
       ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "15sec",
+  "projectName": "Fix delete post and reply — dialog closes without deleting",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

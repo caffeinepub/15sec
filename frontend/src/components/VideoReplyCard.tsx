@@ -13,13 +13,23 @@ import {
   useGetUserProfile,
 } from '../hooks/useQueries';
 import type { VideoReply } from '../backend';
-import { Trash2, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Trash2, Heart, MessageCircle, Share2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
 import ShareDialog from './ShareDialog';
 import ReplyDialog from './ReplyDialog';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface VideoReplyCardProps {
   reply: VideoReply;
@@ -35,7 +45,7 @@ function getAvatarUrl(avatar: Uint8Array | undefined): string | undefined {
 export default function VideoReplyCard({ reply, showDelete = false }: VideoReplyCardProps) {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const { mutate: deleteReply } = useDeleteVideoReply();
+  const deleteReplyMutation = useDeleteVideoReply();
   const { data: isAdmin } = useIsCallerAdmin();
   const { data: creatorProfile } = useGetUserProfile(reply.creator.toString());
 
@@ -48,6 +58,7 @@ export default function VideoReplyCard({ reply, showDelete = false }: VideoReply
 
   const [showReplyDialog, setShowReplyDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isOwner = identity?.getPrincipal().toString() === reply.creator.toString();
   const videoUrl = reply.video.getDirectURL();
@@ -64,16 +75,14 @@ export default function VideoReplyCard({ reply, showDelete = false }: VideoReply
     }
   };
 
-  const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this reply?')) {
-      deleteReply(reply.id, {
-        onSuccess: () => {
-          toast.success('Reply deleted successfully');
-        },
-        onError: () => {
-          toast.error('Failed to delete reply');
-        },
-      });
+  const handleDelete = async () => {
+    try {
+      await deleteReplyMutation.mutateAsync(reply.id);
+      setDeleteDialogOpen(false);
+      toast.success('Reply deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete reply:', error);
+      toast.error('Failed to delete reply. Please try again.');
     }
   };
 
@@ -114,9 +123,33 @@ export default function VideoReplyCard({ reply, showDelete = false }: VideoReply
               </div>
             </div>
             {showDeleteButton && (
-              <Button variant="ghost" size="icon" onClick={handleDelete}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Reply</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete this reply. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleteReplyMutation.isPending}>Cancel</AlertDialogCancel>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={deleteReplyMutation.isPending}
+                      className="gap-2"
+                    >
+                      {deleteReplyMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {deleteReplyMutation.isPending ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
 

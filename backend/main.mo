@@ -7,13 +7,13 @@ import Nat "mo:core/Nat";
 import Int "mo:core/Int";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
-import Migration "migration";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 
-(with migration = Migration.run)
+
 actor {
   type VisitorStats = {
     daily : Nat;
