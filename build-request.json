@@ -1,37 +1,73 @@
 {
   "kind": "build_request",
-  "title": "TikTok-style full-screen video feed (one card per screen)",
-  "priority": "normal",
+  "title": "Fix delete post and reply — dialog closes without deleting",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Redesign the main feed (HomePage) so each video post card occupies exactly one full screen height (100dvh or 100vh). The feed should be a vertically scrollable container with scroll-snap enabled (snap-type: y mandatory), so swiping/scrolling always lands on exactly one card at a time — no partial cards visible. The header should either overlay the feed or be excluded from the card height calculation so the card video+content fills the remaining viewport below it.",
+      "text": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent-3"
         ],
         "quotes": [
-          "one card per screen"
+          "dialog closes but nithing happens",
+          "same issue with posts, replies",
+          "no errors"
         ]
       },
       "acceptanceCriteria": [
-        "Each video card in the main feed takes up the full visible screen height below the header.",
-        "Scrolling snaps so exactly one card is visible at a time — no partial card is visible.",
-        "The video player and card content (avatar, title, actions) all fit within the single card without overflowing or being cut off.",
-        "The header remains accessible and does not push card content out of view.",
-        "Works correctly on mobile viewport sizes (as shown in the uploaded screenshot)."
+        "Clicking Delete in the Delete Post confirmation dialog removes the post from the backend.",
+        "The post disappears from the feed/UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the post is not removed from the UI."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent-3"
+        ],
+        "quotes": [
+          "same issue with posts, replies"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking Delete in the Delete Reply confirmation dialog removes the reply from the backend.",
+        "The reply disappears from the UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the reply is not removed from the UI."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent-3"
+        ],
+        "quotes": [
+          "no errors"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The mutation hooks call the correct backend actor methods with the correct ID.",
+        "On mutation success, affected query caches are invalidated so the deleted item no longer appears.",
+        "No silent failures — errors from the backend surface as mutation errors."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "Do not change the backend."
+    "Do not change the backend delete function signatures or data models.",
+    "Do not modify any file listed under frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Changing the video detail page or reply feed layout.",
-    "Auto-playing videos on scroll (unless already implemented).",
-    "Any backend changes."
+    "Adding undo/restore functionality for deleted posts or replies.",
+    "Changing the visual design of the delete confirmation dialog.",
+    "Fixing any other unrelated bugs."
   ],
   "imageRequirements": {
     "required": [],

@@ -24,11 +24,12 @@ const rootRoute = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="flex flex-col h-dvh overflow-hidden">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1">
         <Outlet />
       </div>
+      <Footer />
     </div>
   );
 }

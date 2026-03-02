@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Redesign the main feed (HomePage) to display one video post card per full screen in a TikTok-style layout with scroll snapping.
+**Goal:** Fix the delete post and delete reply flows so that confirming the deletion dialog actually deletes the item on the backend and removes it from the UI.
 
 **Planned changes:**
-- Make each video post card in the main feed occupy exactly one full screen height (100dvh) below the header
-- Enable vertical scroll snapping (`scroll-snap-type: y mandatory`) on the feed container so scrolling always lands on exactly one card at a time with no partial cards visible
-- Ensure the header overlays the feed or is excluded from the card height calculation so the card fills the remaining viewport
-- Fit all card content (video player, avatar, title, action buttons) within the single full-screen card without overflow
+- Fix `VideoPostCard` delete handler to call the backend `deleteVideoPost` mutation, await the result, and only close the dialog on success.
+- Fix `VideoReplyCard` delete handler to call the backend `deleteVideoReply` mutation, await the result, and only close the dialog on success.
+- Audit `useDeleteVideoPost` and `useDeleteVideoReply` hooks in `useQueries.ts` to ensure they call the correct actor methods with the correct ID, and invalidate/remove the relevant query cache entries on success.
+- Ensure backend errors surface as mutation errors instead of failing silently.
 
-**User-visible outcome:** Users scrolling the home feed will see one video card at a time filling the entire screen, snapping cleanly between posts like TikTok — no partial cards visible, works on mobile viewports.
+**User-visible outcome:** Clicking Delete in the confirmation dialog for a post or reply actually removes it from the backend and it immediately disappears from the UI. If deletion fails, the dialog stays open and the item remains visible.

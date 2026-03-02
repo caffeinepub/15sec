@@ -1,33 +1,53 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "TikTok-style full-screen video feed (one card per screen)",
+  "title": "Fix delete post and reply — dialog closes without deleting",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Redesign the main feed (HomePage) so each video post card occupies exactly one full screen height with scroll-snap enabled",
+      "summary": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
       "acceptanceCriteria": [
-        "Each video card in the main feed takes up the full visible screen height below the header.",
-        "Scrolling snaps so exactly one card is visible at a time — no partial card is visible.",
-        "The video player and card content (avatar, title, actions) all fit within the single card without overflowing or being cut off.",
-        "The header remains accessible and does not push card content out of view.",
-        "Works correctly on mobile viewport sizes (as shown in the uploaded screenshot)."
+        "Clicking Delete in the Delete Post confirmation dialog removes the post from the backend.",
+        "The post disappears from the feed/UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the post is not removed from the UI."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Wrap the video post cards in a scroll-snap container with snap-type: y mandatory. Set the container height to calc(100dvh - header height) or 100dvh if the header overlays, and set each card to min-height: 100% with scroll-snap-align: start. Remove any existing grid or flex layouts that show multiple cards side-by-side. Ensure the video post loading skeleton respects the same full-height layout."
-        },
-        {
           "path": "frontend/src/components/VideoPostCard.tsx",
           "operation": "modify",
-          "description": "Refactor VideoPostCard to occupy the full available height (min-height: 100%) within its parent scroll-snap container. Position the video element to fill the card background, and overlay the creator avatar, title, like/reply/share actions, and delete button using absolute positioning or a flexbox stack. Ensure all interactive elements are visible and accessible without overflow. Apply scroll-snap-align: start to the card root. Adjust spacing, padding, and z-index so text and actions remain readable over the video content."
-        },
+          "description": "Fix the handleDelete function to properly await the deleteVideoPost mutation before closing the AlertDialog. Ensure the delete confirmation button is disabled during the mutation, handle errors gracefully by keeping the dialog open and displaying an error message, and only close the dialog after successful deletion. Add loading state to the Delete button to provide user feedback during the async operation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
+      "acceptanceCriteria": [
+        "Clicking Delete in the Delete Reply confirmation dialog removes the reply from the backend.",
+        "The reply disappears from the UI immediately after the dialog closes.",
+        "If the delete call fails, the dialog stays open or shows an error; the reply is not removed from the UI."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/components/VideoReplyCard.tsx",
           "operation": "modify",
-          "description": "Add global CSS utility classes or custom properties to support full-screen card layouts, such as .snap-container { scroll-snap-type: y mandatory; overflow-y: scroll; } and .snap-item { scroll-snap-align: start; scroll-snap-stop: always; }. Ensure dvh units are supported for mobile browsers and provide a fallback to vh where necessary. Optionally add smooth scrolling if desired."
+          "description": "Fix the handleDelete function to properly await the deleteVideoReply mutation before closing the AlertDialog. Ensure the delete confirmation button is disabled during the mutation, handle errors gracefully by keeping the dialog open and displaying an error message, and only close the dialog after successful deletion. Add loading state to the Delete button to provide user feedback during the async operation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
+      "acceptanceCriteria": [
+        "The mutation hooks call the correct backend actor methods with the correct ID.",
+        "On mutation success, affected query caches are invalidated so the deleted item no longer appears.",
+        "No silent failures — errors from the backend surface as mutation errors."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Audit and fix the useDeleteVideoPost and useDeleteVideoReply mutation hooks. Ensure they correctly call actor.deleteVideoPost(postId) and actor.deleteVideoReply(replyId) respectively, passing bigint IDs correctly. Verify that mutationFn properly awaits the backend call and that onSuccess handlers call queryClient.invalidateQueries(['videoPosts']) for posts and queryClient.invalidateQueries(['videoReplies', parentVideoId]) for replies. Add proper error handling so mutation errors propagate to the UI instead of failing silently."
         }
       ]
     }

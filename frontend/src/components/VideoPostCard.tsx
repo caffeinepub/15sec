@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useLikePost, useIsCallerAdmin, useGetRepliesCountForPost, useGetUserProfile, useDeleteVideoPost } from '../hooks/useQueries';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, MessageCircle, Share2, Trash2, Loader2 } from 'lucide-react';
@@ -87,122 +88,111 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
 
   return (
     <>
-      <div
-        className="relative w-full h-full bg-black overflow-hidden cursor-pointer"
-        onClick={handleCardClick}
-      >
-        {/* Video fills the entire card */}
-        <video
-          src={post.video.getDirectURL()}
-          controls
-          className="absolute inset-0 w-full h-full object-contain"
-          onClick={(e) => e.stopPropagation()}
-        />
+      <Card className="overflow-hidden cursor-pointer hover:bg-accent/50 transition-colors" onClick={handleCardClick}>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate({ to: '/profile/$username', params: { username: post.username } });
+              }}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={avatarUrl} alt={post.username} />
+                <AvatarFallback>{post.username[0]?.toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="text-left">
+                <p className="font-semibold">{post.username}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(Number(post.timestamp) / 1000000).toLocaleDateString()}
+                </p>
+              </div>
+            </button>
+            {canDelete && (
+              <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete this post and all its replies. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deletePostMutation.isPending}>Cancel</AlertDialogCancel>
+                    <Button
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={deletePostMutation.isPending}
+                      className="gap-2"
+                    >
+                      {deletePostMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {deletePostMutation.isPending ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+        </CardHeader>
 
-        {/* Gradient overlay at bottom for readability */}
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+        <CardContent className="pb-3">
+          <h3 className="font-semibold mb-3">{post.title}</h3>
+          <video
+            src={post.video.getDirectURL()}
+            controls
+            className="w-full rounded-lg bg-black"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </CardContent>
 
-        {/* Top bar: avatar + username + date + delete */}
-        <div className="absolute top-0 inset-x-0 flex items-center justify-between px-4 pt-4 pb-2 bg-gradient-to-b from-black/60 to-transparent">
-          <button
+        <CardFooter className="flex items-center gap-4 pt-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
             onClick={(e) => {
               e.stopPropagation();
-              navigate({ to: '/profile/$username', params: { username: post.username } });
+              handleLike();
             }}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            disabled={likePostMutation.isPending}
           >
-            <Avatar className="h-10 w-10 border-2 border-white/60">
-              <AvatarImage src={avatarUrl} alt={post.username} />
-              <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                {post.username[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-left">
-              <p className="font-semibold text-white drop-shadow">{post.username}</p>
-              <p className="text-xs text-white/70 drop-shadow">
-                {new Date(Number(post.timestamp) / 1000000).toLocaleDateString()}
-              </p>
-            </div>
-          </button>
+            <Heart className="h-4 w-4" />
+            <span>{post.likes.toString()}</span>
+          </Button>
 
-          {canDelete && (
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-              <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                  <Trash2 className="h-5 w-5 text-destructive" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Post</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete this post and all its replies. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deletePostMutation.isPending}>Cancel</AlertDialogCancel>
-                  <Button
-                    variant="destructive"
-                    onClick={handleDelete}
-                    disabled={deletePostMutation.isPending}
-                    className="gap-2"
-                  >
-                    {deletePostMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {deletePostMutation.isPending ? 'Deleting...' : 'Delete'}
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-        </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowReplyDialog(true);
+            }}
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>{repliesCount?.toString() || '0'}</span>
+          </Button>
 
-        {/* Bottom bar: title + action buttons */}
-        <div className="absolute bottom-0 inset-x-0 px-4 pb-6 flex items-end justify-between gap-4">
-          {/* Title */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-white text-base drop-shadow line-clamp-2">
-              {post.title}
-            </h3>
-          </div>
-
-          {/* Action buttons stacked vertically on the right */}
-          <div className="flex flex-col items-center gap-4 pb-1">
-            <button
-              className="flex flex-col items-center gap-1 text-white hover:text-red-400 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike();
-              }}
-              disabled={likePostMutation.isPending}
-            >
-              <Heart className="h-7 w-7 drop-shadow" />
-              <span className="text-xs font-medium drop-shadow">{post.likes.toString()}</span>
-            </button>
-
-            <button
-              className="flex flex-col items-center gap-1 text-white hover:text-blue-400 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowReplyDialog(true);
-              }}
-            >
-              <MessageCircle className="h-7 w-7 drop-shadow" />
-              <span className="text-xs font-medium drop-shadow">{repliesCount?.toString() || '0'}</span>
-            </button>
-
-            <button
-              className="flex flex-col items-center gap-1 text-white hover:text-green-400 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowShareDialog(true);
-              }}
-            >
-              <Share2 className="h-7 w-7 drop-shadow" />
-              <span className="text-xs font-medium drop-shadow">{post.shares.toString()}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowShareDialog(true);
+            }}
+          >
+            <Share2 className="h-4 w-4" />
+            <span>{post.shares.toString()}</span>
+          </Button>
+        </CardFooter>
+      </Card>
 
       <ReplyDialog
         open={showReplyDialog}

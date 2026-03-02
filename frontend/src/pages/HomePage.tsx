@@ -7,21 +7,17 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="h-[calc(100dvh-4rem)] overflow-hidden">
-        <div className="snap-feed h-full overflow-y-scroll">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="snap-card h-[calc(100dvh-4rem)] flex-shrink-0">
-              <Skeleton className="w-full h-full rounded-none" />
-            </div>
-          ))}
-        </div>
+      <div className="space-y-6">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="w-full h-96" />
+        ))}
       </div>
     );
   }
 
   if (posts.length === 0) {
     return (
-      <div className="h-[calc(100dvh-4rem)] flex items-center justify-center">
+      <div className="text-center py-12">
         <p className="text-muted-foreground">No videos yet. Be the first to post!</p>
       </div>
     );
@@ -30,11 +26,9 @@ export default function HomePage() {
   const sortedPosts = [...posts].sort((a, b) => Number(b.timestamp - a.timestamp));
 
   return (
-    <div className="snap-feed h-[calc(100dvh-4rem)] overflow-y-scroll">
+    <div className="space-y-6">
       {sortedPosts.map((post) => (
-        <div key={post.id.toString()} className="snap-card h-[calc(100dvh-4rem)] flex-shrink-0">
-          <VideoPostCard post={post} />
-        </div>
+        <VideoPostCard key={post.id.toString()} post={post} />
       ))}
     </div>
   );

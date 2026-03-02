@@ -1,32 +1,42 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "A social media app with a TikTok-style full-screen video feed. Each video card takes up one full screen height (100vh) in the main feed.",
-  "architectural_notes": [
-    "Main feed uses full-screen (100vh) card layout, one video card per screen, scroll-based navigation between cards"
+  "summary": "Video sharing app with posts and replies functionality. User reported delete confirmation dialog closes but doesn't actually delete posts or replies.",
+  "architectural_notes": [],
+  "known_issues": [
+    "Delete confirmation dialog closes without deleting post/reply — affects both posts and replies, no error shown"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-redesign-the-main-feed-homepage-so-each-video-post-card-occupies-exactly-one-full-screen-height-100dvh-or-100vh-the-feed-should-be-a-vertically-scrollable-container-with-scroll-snap-enabled-snap-type-y-mandatory-so-swiping-scrolling-always-lands-on-exactly-one-card-at-a-time-no-partial-cards-visible-the-header-should-either-overlay-the-feed-or-be-excluded-from-the-card-height-calculation-so-the-card-video-content-fills-the-remaining-viewport-below-it",
-      "title": "Redesign the main feed (HomePage) so each video post card occupies exactly one full screen height (100dvh or 100vh). The feed should be a vertically scrollable container with scroll-snap enabled (snap-type: y mandatory), so swiping/scrolling always lands on exactly one card at a time — no partial cards visible. The header should either overlay the feed or be excluded from the card height calculation so the card video+content fills the remaining viewport below it.",
+      "id": "feature-fix-the-delete-post-mutation-in-videopostcard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideopost-function-awaits-the-result-and-invalidates-removes-the-post-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
+      "title": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-delete-reply-mutation-in-videoreplycard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideoreply-function-awaits-the-result-and-invalidates-removes-the-reply-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
+      "title": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
+      "reqIds": [
+        "REQ-2"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Main feed: each video card takes up full screen height (100vh), TikTok-style one card per screen",
-      "reqIds": [],
+      "id": "AR-3",
+      "summary": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
+      "reqIds": [
+        "REQ-3"
+      ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "TikTok-style full-screen video feed (one card per screen)",
+  "projectName": "Fix delete post and reply — dialog closes without deleting",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

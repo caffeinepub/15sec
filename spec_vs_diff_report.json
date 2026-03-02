@@ -1,17 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-03-02T20:39:59.568Z",
-  "summary": "The diff implements REQ-1 comprehensively. The HomePage redesign uses scroll-snap with snap-type y mandatory (via .snap-feed CSS utility), each card is sized to h-[calc(100dvh-4rem)] (full viewport minus header height) with snap-card class applying scroll-snap-align: start and scroll-snap-stop: always. The App.tsx layout uses h-dvh with overflow-hidden and flex-1 overflow-hidden for the Outlet, ensuring the header does not push card content out of view. VideoPostCard is redesigned with video filling the card (object-contain on black background) and overlaid UI elements. All acceptance criteria appear addressed.",
-  "missing_requirements": [],
+  "generatedAt": "2026-03-01T19:46:36.540Z",
+  "summary": "The diff implements fixes for all three requirements. VideoPostCard now uses useDeleteVideoPost with mutateAsync and controlled dialog state. VideoReplyCard replaces confirm()+mutate() with a controlled AlertDialog using mutateAsync. The useQueries.ts summary description does not explicitly confirm the hooks were audited or corrected.",
+  "missing_requirements": [
+    {
+      "id": "REQ-3",
+      "requirement": "Audit useDeleteVideoPost and useDeleteVideoReply in useQueries.ts to ensure correct actor method references, correct ID arguments, and queryClient.invalidateQueries or optimistic removal on success.",
+      "reason": "The diff summary for useQueries.ts only describes newly added hooks (useHasUserLikedReply, useGetVideoRepliesByUser, useGetVisitorStats, useRecordVisit) and does not explicitly confirm that useDeleteVideoPost and useDeleteVideoReply were audited or corrected. The actual file content for useQueries.ts is not shown in the diff, so correctness of those hooks cannot be verified.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.93,
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
     "frontend/src/components/VideoPostCard.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/components/VideoReplyCard.tsx",
     "project_state.json"
   ]
 }
