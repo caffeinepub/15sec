@@ -3,72 +3,85 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.5rem;
-        --background: 0 0% 100%;
-        --foreground: 0 0% 9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 9%;
-        --primary: 0 0% 13%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96%;
-        --secondary-foreground: 0 0% 13%;
-        --muted: 0 0% 96%;
-        --muted-foreground: 0 0% 45%;
-        --accent: 0 0% 96%;
-        --accent-foreground: 0 0% 13%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 90%;
-        --input: 0 0% 90%;
-        --ring: 0 0% 63%;
-    }
+  :root {
+    --background: oklch(0.98 0.002 240);
+    --foreground: oklch(0.12 0.01 240);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.12 0.01 240);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.12 0.01 240);
+    --primary: oklch(0.45 0.22 25);
+    --primary-foreground: oklch(0.98 0.002 240);
+    --secondary: oklch(0.94 0.005 240);
+    --secondary-foreground: oklch(0.2 0.01 240);
+    --muted: oklch(0.94 0.005 240);
+    --muted-foreground: oklch(0.52 0.01 240);
+    --accent: oklch(0.94 0.005 240);
+    --accent-foreground: oklch(0.2 0.01 240);
+    --destructive: oklch(0.52 0.22 25);
+    --destructive-foreground: oklch(0.98 0.002 240);
+    --border: oklch(0.88 0.005 240);
+    --input: oklch(0.88 0.005 240);
+    --ring: oklch(0.45 0.22 25);
+    --radius: 0.5rem;
+    --chart-1: oklch(0.45 0.22 25);
+    --chart-2: oklch(0.6 0.15 200);
+    --chart-3: oklch(0.7 0.12 150);
+    --chart-4: oklch(0.65 0.18 60);
+    --chart-5: oklch(0.55 0.2 300);
+  }
 
-    .dark {
-        --background: 0 0% 9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 13%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 15%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 90%;
-        --primary-foreground: 0 0% 13%;
-        --secondary: 0 0% 15%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 15%;
-        --muted-foreground: 0 0% 63%;
-        --accent: 0 0% 20%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 13%;
-        --border: 0 0% 20%;
-        --input: 0 0% 20%;
-        --ring: 0 0% 45%;
-    }
+  .dark {
+    --background: oklch(0.1 0.005 240);
+    --foreground: oklch(0.95 0.005 240);
+    --card: oklch(0.14 0.008 240);
+    --card-foreground: oklch(0.95 0.005 240);
+    --popover: oklch(0.14 0.008 240);
+    --popover-foreground: oklch(0.95 0.005 240);
+    --primary: oklch(0.6 0.22 25);
+    --primary-foreground: oklch(0.98 0.002 240);
+    --secondary: oklch(0.2 0.008 240);
+    --secondary-foreground: oklch(0.9 0.005 240);
+    --muted: oklch(0.2 0.008 240);
+    --muted-foreground: oklch(0.6 0.01 240);
+    --accent: oklch(0.2 0.008 240);
+    --accent-foreground: oklch(0.9 0.005 240);
+    --destructive: oklch(0.6 0.22 25);
+    --destructive-foreground: oklch(0.98 0.002 240);
+    --border: oklch(0.22 0.008 240);
+    --input: oklch(0.22 0.008 240);
+    --ring: oklch(0.6 0.22 25);
+    --chart-1: oklch(0.6 0.22 25);
+    --chart-2: oklch(0.65 0.15 200);
+    --chart-3: oklch(0.72 0.12 150);
+    --chart-4: oklch(0.68 0.18 60);
+    --chart-5: oklch(0.6 0.2 300);
+  }
+}
 
-    * {
-        @apply border-border;
-    }
-    
-    body {
-        @apply bg-background text-foreground;
-        font-feature-settings: "rlig" 1, "calt" 1;
-    }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 @layer utilities {
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.5;
-        }
-    }
-    
-    .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
+  .snap-feed {
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .snap-feed::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-card {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
 }
