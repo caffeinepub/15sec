@@ -19,8 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import type { Principal } from "@dfinity/principal";
-import { Copy, Trash2, UserMinus, UserPlus } from "lucide-react";
+import { Copy, Loader2, Save, Trash2, UserMinus, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
@@ -28,11 +29,13 @@ import {
   useDemoteUser,
   useGetActiveAccountsCount,
   useGetAllUsers,
+  useGetDonateText,
   useGetVisitorStats,
   useIsCallerAdmin,
   usePermanentlyDeleteAccount,
   usePromoteUser,
   useRecordVisit,
+  useSetDonateText,
 } from "../hooks/useQueries";
 import { useGetUserProfile } from "../hooks/useQueries";
 
@@ -127,25 +130,35 @@ export default function AdminDashboardPage() {
   const promoteUserMutation = usePromoteUser();
   const demoteUserMutation = useDemoteUser();
   const deleteAccountMutation = usePermanentlyDeleteAccount();
+  const { data: donateTextData, isLoading: donateTextLoading } =
+    useGetDonateText();
+  const setDonateTextMutation = useSetDonateText();
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [actionType, setActionType] = useState<
     "promote" | "demote" | "delete" | null
   >(null);
+  const [donateTextInput, setDonateTextInput] = useState<string>("");
 
   // Check if current user is the permanent admin — bypass loading state entirely
   const callerPrincipal = identity?.getPrincipal().toString();
   const isPermanentAdmin = callerPrincipal === PERMANENT_ADMIN_PRINCIPAL;
   const isAuthenticated = !!identity;
 
-  const recordVisit = recordVisitMutation.mutate;
-
   // Record visit once on page load for authenticated users only
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
   useEffect(() => {
     if (isAuthenticated && callerPrincipal) {
-      recordVisit();
+      recordVisitMutation.mutate();
     }
-  }, [isAuthenticated, callerPrincipal, recordVisit]);
+  }, [isAuthenticated, callerPrincipal]);
+
+  // Sync donate text input when data arrives
+  useEffect(() => {
+    if (donateTextData !== undefined) {
+      setDonateTextInput(donateTextData);
+    }
+  }, [donateTextData]);
 
   const openConfirmDialog = (
     principal: string,
@@ -318,6 +331,57 @@ export default function AdminDashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Donate popup text editor */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Donate Popup Text</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {donateTextLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={donateTextInput}
+                onChange={(e) => setDonateTextInput(e.target.value)}
+                placeholder="Enter the text that will appear in the donate popup..."
+                className="min-h-[120px] resize-y"
+                data-ocid="admin.donate_text.textarea"
+              />
+              <div className="flex justify-end">
+                <Button
+                  onClick={async () => {
+                    try {
+                      await setDonateTextMutation.mutateAsync(donateTextInput);
+                      toast.success("Donate text saved successfully");
+                    } catch {
+                      toast.error("Failed to save donate text");
+                    }
+                  }}
+                  disabled={setDonateTextMutation.isPending}
+                  data-ocid="admin.donate_text.save_button"
+                >
+                  {setDonateTextMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

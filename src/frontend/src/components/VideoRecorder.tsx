@@ -134,7 +134,7 @@ export default function VideoRecorder({
           className="relative bg-black rounded-lg overflow-hidden w-full"
           style={{ aspectRatio: "4/3" }}
         >
-          {/* biome-ignore lint/a11y/useMediaCaption: user-generated short video content */}
+          {/* biome-ignore lint/a11y/useMediaCaption: short video content */}
           <video
             src={recordedVideo}
             controls

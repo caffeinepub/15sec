@@ -13,6 +13,7 @@ import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 
+
 actor {
   type VisitorStats = {
     daily : Nat;
@@ -41,6 +42,8 @@ actor {
   let weeklyVisitors = Map.empty<WeeklyKey, Set.Set<Principal>>();
   let monthlyVisitors = Map.empty<Nat, Set.Set<Principal>>();
   let allTimeVisitors = Set.empty<Principal>();
+
+  var donateText = "Support 15sec! Every contribution helps us keep the platform running and growing. Thank you for being part of our community.";
 
   type WeeklyKey = {
     week : Int;
@@ -1002,8 +1005,8 @@ actor {
   };
 
   public shared ({ caller }) func recordVisit() : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can track visitors");
+    if (not callerHasAdminPermission(caller)) {
+      Runtime.trap("Unauthorized: Only admins can track visitors");
     };
 
     let callerPrincipal = caller;
@@ -1094,5 +1097,16 @@ actor {
       monthly = monthlyCount;
       allTime = allTimeCount;
     };
+  };
+
+  public query ({ caller }) func getDonateText() : async Text {
+    donateText;
+  };
+
+  public shared ({ caller }) func setDonateText(text : Text) : async () {
+    if (not callerIsAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins can update donate text");
+    };
+    donateText := text;
   };
 };

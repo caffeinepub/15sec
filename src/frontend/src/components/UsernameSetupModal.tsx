@@ -24,15 +24,14 @@ export default function UsernameSetupModal() {
   const { mutate: saveProfile, isPending } = useSaveCallerUserProfile();
   const checkUsername = useCheckUsernameAvailability();
 
-  const checkUsernameFn = checkUsername.mutateAsync;
-
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
   useEffect(() => {
     const timer = setTimeout(async () => {
       setDebouncedUsername(username);
       if (username.length >= 3) {
         setCheckingAvailability(true);
         try {
-          const available = await checkUsernameFn(username);
+          const available = await checkUsername.mutateAsync(username);
           setIsAvailable(available);
         } catch {
           setIsAvailable(null);
@@ -44,7 +43,7 @@ export default function UsernameSetupModal() {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [username, checkUsernameFn]);
+  }, [username]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

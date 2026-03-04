@@ -104,9 +104,6 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
           if (e.key === "Enter" || e.key === " ")
             handleCardClick(e as unknown as React.MouseEvent);
         }}
-        // biome-ignore lint/a11y/useSemanticElements: card is a complex interactive region, not a simple button
-        role="button"
-        tabIndex={0}
       >
         {/* Header: avatar + username + date + delete */}
         <div className="flex items-center justify-between px-4 py-3 shrink-0">
@@ -181,13 +178,13 @@ export default function VideoPostCard({ post, onDelete }: VideoPostCardProps) {
 
         {/* Video — fills remaining space */}
         <div className="flex-1 min-h-0 px-4 pb-2">
-          {/* biome-ignore lint/a11y/useMediaCaption: user-generated short video content */}
+          {/* biome-ignore lint/a11y/useMediaCaption: short video content */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only, native video controls handle keyboard */}
           <video
             src={post.video.getDirectURL()}
             controls
             className="w-full h-full rounded-lg bg-black object-contain"
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
             playsInline
           />
         </div>

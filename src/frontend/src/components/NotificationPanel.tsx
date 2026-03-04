@@ -52,8 +52,7 @@ export default function NotificationPanel({
             <div className="divide-y">
               {notifications.map((notification, index) => (
                 <NotificationItem
-                  // biome-ignore lint/suspicious/noArrayIndexKey: notifications have no stable ID
-                  key={index}
+                  key={`${notification.sender.toString()}-${notification.timestamp.toString()}-${index}`}
                   notification={notification}
                   navigate={navigate}
                   onClose={onClose}

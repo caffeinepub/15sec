@@ -90,6 +90,7 @@ export interface backendInterface {
     getAllVideoPosts(): Promise<Array<VideoPost>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getDonateText(): Promise<string>;
     getFollowersAndFollowingCounts(user: Principal): Promise<[bigint, bigint]>;
     getFollowersCount(_user: Principal): Promise<bigint>;
     getFollowingCount(_user: Principal): Promise<bigint>;
@@ -126,6 +127,7 @@ export interface backendInterface {
     recordVisit(): Promise<void>;
     revalidateSession(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setDonateText(text: string): Promise<void>;
     sharePost(postId: bigint): Promise<void>;
     shareReply(replyId: bigint): Promise<void>;
     unfollowUser(target: Principal): Promise<void>;

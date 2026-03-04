@@ -121,6 +121,7 @@ export const idlService = IDL.Service({
   'getAllVideoPosts' : IDL.Func([], [IDL.Vec(VideoPost)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getDonateText' : IDL.Func([], [IDL.Text], ['query']),
   'getFollowersAndFollowingCounts' : IDL.Func(
       [IDL.Principal],
       [IDL.Nat, IDL.Nat],
@@ -201,6 +202,7 @@ export const idlService = IDL.Service({
   'recordVisit' : IDL.Func([], [], []),
   'revalidateSession' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'setDonateText' : IDL.Func([IDL.Text], [], []),
   'sharePost' : IDL.Func([IDL.Nat], [], []),
   'shareReply' : IDL.Func([IDL.Nat], [], []),
   'unfollowUser' : IDL.Func([IDL.Principal], [], []),
@@ -323,6 +325,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllVideoPosts' : IDL.Func([], [IDL.Vec(VideoPost)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getDonateText' : IDL.Func([], [IDL.Text], ['query']),
     'getFollowersAndFollowingCounts' : IDL.Func(
         [IDL.Principal],
         [IDL.Nat, IDL.Nat],
@@ -403,6 +406,7 @@ export const idlFactory = ({ IDL }) => {
     'recordVisit' : IDL.Func([], [], []),
     'revalidateSession' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'setDonateText' : IDL.Func([IDL.Text], [], []),
     'sharePost' : IDL.Func([IDL.Nat], [], []),
     'shareReply' : IDL.Func([IDL.Nat], [], []),
     'unfollowUser' : IDL.Func([IDL.Principal], [], []),

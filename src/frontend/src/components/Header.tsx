@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, Home, PlusSquare, Shield, User } from "lucide-react";
+import { Bell, Heart, Home, PlusSquare, Shield, User } from "lucide-react";
 import { useState } from "react";
 import {
   useGetCallerUserProfile,
@@ -9,6 +9,7 @@ import {
   useIsCallerAdmin,
 } from "../hooks/useQueries";
 import Branding from "./Branding";
+import DonateModal from "./DonateModal";
 import NotificationPanel from "./NotificationPanel";
 
 function getAvatarUrl(avatar: Uint8Array | undefined): string | undefined {
@@ -24,6 +25,7 @@ export default function Header() {
   const { data: userProfile } = useGetCallerUserProfile();
   const hasUnread = unreadCount && unreadCount > BigInt(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showDonate, setShowDonate] = useState(false);
 
   const avatarUrl = userProfile?.avatar
     ? getAvatarUrl(userProfile.avatar)
@@ -42,6 +44,16 @@ export default function Header() {
         </button>
 
         <nav className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowDonate(true)}
+            aria-label="Donate"
+            data-ocid="header.donate_button"
+          >
+            <Heart className="h-5 w-5" />
+          </Button>
+
           <Button
             variant="ghost"
             size="icon"
@@ -107,6 +119,8 @@ export default function Header() {
               <User className="h-5 w-5" />
             )}
           </Button>
+
+          <DonateModal open={showDonate} onClose={() => setShowDonate(false)} />
         </nav>
       </div>
     </header>

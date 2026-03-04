@@ -176,7 +176,7 @@ export default function VideoReplyCard({
 
           {/* Video */}
           <div className="relative bg-black aspect-video">
-            {/* biome-ignore lint/a11y/useMediaCaption: user-generated short video content */}
+            {/* biome-ignore lint/a11y/useMediaCaption: short video content */}
             <video
               src={videoUrl}
               controls

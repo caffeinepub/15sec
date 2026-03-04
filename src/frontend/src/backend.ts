@@ -183,6 +183,7 @@ export interface backendInterface {
     getAllVideoPosts(): Promise<Array<VideoPost>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getDonateText(): Promise<string>;
     getFollowersAndFollowingCounts(user: Principal): Promise<[bigint, bigint]>;
     getFollowersCount(_user: Principal): Promise<bigint>;
     getFollowingCount(_user: Principal): Promise<bigint>;
@@ -219,6 +220,7 @@ export interface backendInterface {
     recordVisit(): Promise<void>;
     revalidateSession(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setDonateText(text: string): Promise<void>;
     sharePost(postId: bigint): Promise<void>;
     shareReply(replyId: bigint): Promise<void>;
     unfollowUser(target: Principal): Promise<void>;
@@ -547,6 +549,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n23(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getDonateText(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getDonateText();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getDonateText();
+            return result;
         }
     }
     async getFollowersAndFollowingCounts(arg0: Principal): Promise<[bigint, bigint]> {
@@ -1062,6 +1078,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n36(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
+    async setDonateText(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setDonateText(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setDonateText(arg0);
             return result;
         }
     }

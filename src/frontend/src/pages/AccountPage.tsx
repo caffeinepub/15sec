@@ -309,18 +309,6 @@ export default function AccountPage() {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
-          {isAdmin && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate({ to: "/admin" })}
-              data-ocid="account.admin_dashboard.button"
-            >
-              <ShieldCheck className="w-4 h-4 mr-2" />
-              Admin Dashboard
-            </Button>
-          )}
-
           <Button
             variant="outline"
             size="sm"
