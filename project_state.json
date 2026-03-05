@@ -1,42 +1,25 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Video sharing app with posts and replies functionality. User reported delete confirmation dialog closes but doesn't actually delete posts or replies.",
-  "architectural_notes": [],
-  "known_issues": [
-    "Delete confirmation dialog closes without deleting post/reply — affects both posts and replies, no error shown"
+  "summary": "Video card feed app where each card fits within the mobile viewport height, allowing users to scroll through one complete card at a time (TikTok/Reels-style layout).",
+  "architectural_notes": [
+    "Each video card must fit within the mobile viewport height — no overflow. Layout should support one-card-at-a-time scrolling."
   ],
+  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-delete-post-mutation-in-videopostcard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideopost-function-awaits-the-result-and-invalidates-removes-the-post-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
-      "title": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
+      "id": "feature-fix-the-videopostcard-layout-so-the-entire-card-including-the-header-avatar-username-date-title-video-and-action-buttons-fits-within-the-visible-mobile-viewport-height-without-overflowing-the-card-height-must-be-constrained-to-the-available-screen-height-minus-the-sticky-header-so-users-can-scroll-through-one-complete-card-at-a-time-the-video-element-must-shrink-flex-to-fill-remaining-space-rather-than-overflow-below-the-fold",
+      "title": "Fix the VideoPostCard layout so the entire card — including the header (avatar, username, date), title, video, and action buttons — fits within the visible mobile viewport height without overflowing. The card height must be constrained to the available screen height minus the sticky header, so users can scroll through one complete card at a time. The video element must shrink/flex to fill remaining space rather than overflow below the fold.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-fix-the-delete-reply-mutation-in-videoreplycard-so-that-confirming-the-delete-dialog-actually-calls-the-backend-deletevideoreply-function-awaits-the-result-and-invalidates-removes-the-reply-from-the-query-cache-the-dialog-must-only-close-after-the-deletion-succeeds",
-      "title": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-3",
-      "summary": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    }
-  ],
+  "new_feature_requests": [],
   "gameProjectType": "none",
-  "projectName": "Fix delete post and reply — dialog closes without deleting",
+  "projectName": "Fix video card to fit fully within mobile viewport height",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

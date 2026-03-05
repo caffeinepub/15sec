@@ -1,73 +1,36 @@
 {
   "kind": "build_request",
-  "title": "Fix delete post and reply — dialog closes without deleting",
-  "priority": "high",
+  "title": "Fix video card to fit fully within mobile viewport height",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the delete post mutation in VideoPostCard so that confirming the Delete dialog actually calls the backend deleteVideoPost function, awaits the result, and invalidates/removes the post from the query cache. The dialog must only close after the deletion succeeds.",
+      "text": "Fix the VideoPostCard layout so the entire card — including the header (avatar, username, date), title, video, and action buttons — fits within the visible mobile viewport height without overflowing. The card height must be constrained to the available screen height minus the sticky header, so users can scroll through one complete card at a time. The video element must shrink/flex to fill remaining space rather than overflow below the fold.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent-3"
+          "msg-latest"
         ],
         "quotes": [
-          "dialog closes but nithing happens",
-          "same issue with posts, replies",
-          "no errors"
+          "make it so the whole video card is visible on mobile device. look at picture."
         ]
       },
       "acceptanceCriteria": [
-        "Clicking Delete in the Delete Post confirmation dialog removes the post from the backend.",
-        "The post disappears from the feed/UI immediately after the dialog closes.",
-        "If the delete call fails, the dialog stays open or shows an error; the post is not removed from the UI."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Fix the delete reply mutation in VideoReplyCard so that confirming the Delete dialog actually calls the backend deleteVideoReply function, awaits the result, and invalidates/removes the reply from the query cache. The dialog must only close after the deletion succeeds.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent-3"
-        ],
-        "quotes": [
-          "same issue with posts, replies"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Clicking Delete in the Delete Reply confirmation dialog removes the reply from the backend.",
-        "The reply disappears from the UI immediately after the dialog closes.",
-        "If the delete call fails, the dialog stays open or shows an error; the reply is not removed from the UI."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Audit the useDeleteVideoPost and useDeleteVideoReply mutation hooks in useQueries.ts to ensure they correctly reference the backend actor methods (e.g., actor.deleteVideoPost / actor.deleteVideoReply), pass the correct post/reply ID argument, and call queryClient.invalidateQueries or optimistically remove the item on success.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent-3"
-        ],
-        "quotes": [
-          "no errors"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The mutation hooks call the correct backend actor methods with the correct ID.",
-        "On mutation success, affected query caches are invalidated so the deleted item no longer appears.",
-        "No silent failures — errors from the backend surface as mutation errors."
+        "On a typical mobile viewport (e.g. 390x844 or 360x800), the full video card — header, title, video, and action row — is visible without scrolling within the card.",
+        "The video element uses object-fit: contain or cover and does not overflow below the bottom of the viewport.",
+        "Each card takes up exactly the available viewport height (100dvh minus header height), so users can scroll through one card at a time.",
+        "The layout works in both portrait and landscape mobile orientations."
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend delete function signatures or data models.",
-    "Do not modify any file listed under frontend.immutablePaths."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Do not change backend logic or data structures."
   ],
   "nonGoals": [
-    "Adding undo/restore functionality for deleted posts or replies.",
-    "Changing the visual design of the delete confirmation dialog.",
-    "Fixing any other unrelated bugs."
+    "Redesigning the card visual style or color scheme.",
+    "Adding new card features (e.g., new action buttons, comments inline).",
+    "Changing desktop layout behavior."
   ],
   "imageRequirements": {
     "required": [],

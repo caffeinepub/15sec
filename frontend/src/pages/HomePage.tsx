@@ -7,9 +7,9 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 p-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="w-full h-96" />
+          <Skeleton key={i} className="w-full h-[calc(100dvh-4rem)]" />
         ))}
       </div>
     );
@@ -26,9 +26,14 @@ export default function HomePage() {
   const sortedPosts = [...posts].sort((a, b) => Number(b.timestamp - a.timestamp));
 
   return (
-    <div className="space-y-6">
+    <div className="h-[calc(100dvh-4rem)] overflow-y-scroll snap-y snap-mandatory">
       {sortedPosts.map((post) => (
-        <VideoPostCard key={post.id.toString()} post={post} />
+        <div
+          key={post.id.toString()}
+          className="h-[calc(100dvh-4rem)] snap-start snap-always flex flex-col"
+        >
+          <VideoPostCard post={post} />
+        </div>
       ))}
     </div>
   );

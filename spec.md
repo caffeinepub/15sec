@@ -1,46 +1,12 @@
-# 15sec
+# Specification
 
-## Current State
+## Summary
+**Goal:** Fix the VideoPostCard so the entire card fits within the mobile viewport height without overflowing.
 
-A social media platform supporting 15-second video posts and 5-second video replies. Features include: user profiles with avatars, video likes/shares/replies, follow system, notifications, admin dashboard at /admin with user management and visitor stats. Header contains: 15sec branding, Home, Create, Notifications, Admin (conditional), Account buttons.
+**Planned changes:**
+- Constrain the VideoPostCard height to the available viewport height (100dvh minus sticky header height)
+- Make the video element flex/shrink to fill remaining space within the card rather than overflow below the fold
+- Ensure the header (avatar, username, date), title, video, and action buttons are all visible without scrolling within the card
+- Verify layout works in both portrait and landscape mobile orientations
 
-## Requested Changes (Diff)
-
-### Add
-- Donate heart icon button in header, positioned to the left of the Home button
-- Donate popup modal that opens when the heart icon is clicked, showing admin-editable text
-- Backend: `getDonateText()` query and `setDonateText(text: Text)` update function (admin-only write)
-- Frontend: `useGetDonateText` query hook and `useSetDonateText` mutation hook
-- Admin dashboard `/admin`: donate text editor section with a textarea and save button
-
-### Modify
-- Header component: insert Heart icon button before the Home button
-
-### Remove
-- Nothing
-
-## Implementation Plan
-
-1. **Backend (main.mo)**:
-   - Add `var donateText : Text` stable variable with default text: "Support 15sec! Every contribution helps us keep the platform running and growing. Thank you for being part of our community."
-   - Add `getDonateText()` public query (no auth required, anyone can read)
-   - Add `setDonateText(text: Text)` public shared function (admin-only)
-
-2. **Frontend hooks (useQueries.ts)**:
-   - Add `useGetDonateText()` query hook calling `actor.getDonateText()`
-   - Add `useSetDonateText()` mutation hook calling `actor.setDonateText(text)`
-
-3. **Header component (Header.tsx)**:
-   - Import `Heart` from lucide-react
-   - Add Heart icon Button before the Home Button, with `onClick` opening a donate modal state
-   - Render a donate popup/dialog when state is true
-
-4. **DonateModal component** (new file or inline in Header):
-   - Fetches donate text via `useGetDonateText()`
-   - Displays text in a styled dialog/modal
-   - Has a close button
-
-5. **AdminDashboardPage.tsx**:
-   - Add "Donate Text" section with a textarea pre-filled with current donate text
-   - Save button calls `useSetDonateText` mutation
-   - Show success/error toast on save
+**User-visible outcome:** On mobile, users can see the complete video card — including header, title, video, and action buttons — fully within the screen, and can scroll through one complete card at a time.
