@@ -1,15 +1,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useNavigate } from "@tanstack/react-router";
 import { Bell, Heart, Home, PlusSquare, Shield, User } from "lucide-react";
 import { useState } from "react";
 import {
   useGetCallerUserProfile,
+  useGetDonateText,
   useGetUnreadNotificationsCount,
   useIsCallerAdmin,
 } from "../hooks/useQueries";
 import Branding from "./Branding";
-import DonateModal from "./DonateModal";
 import NotificationPanel from "./NotificationPanel";
 
 function getAvatarUrl(avatar: Uint8Array | undefined): string | undefined {
@@ -25,12 +31,13 @@ export default function Header() {
   const { data: userProfile } = useGetCallerUserProfile();
   const hasUnread = unreadCount && unreadCount > BigInt(0);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showDonate, setShowDonate] = useState(false);
 
   const avatarUrl = userProfile?.avatar
     ? getAvatarUrl(userProfile.avatar)
     : undefined;
   const avatarFallback = userProfile?.username?.[0]?.toUpperCase() ?? "";
+  const [showDonatePopup, setShowDonatePopup] = useState(false);
+  const { data: donateText } = useGetDonateText();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,11 +54,11 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setShowDonate(true)}
+            onClick={() => setShowDonatePopup(true)}
             aria-label="Donate"
             data-ocid="header.donate_button"
           >
-            <Heart className="h-5 w-5" />
+            <Heart className="h-5 w-5 text-red-500" />
           </Button>
 
           <Button
@@ -119,10 +126,23 @@ export default function Header() {
               <User className="h-5 w-5" />
             )}
           </Button>
-
-          <DonateModal open={showDonate} onClose={() => setShowDonate(false)} />
         </nav>
       </div>
+
+      <Dialog open={showDonatePopup} onOpenChange={setShowDonatePopup}>
+        <DialogContent data-ocid="donate.dialog">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-red-500" />
+              Support 15sec
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+            {donateText ??
+              "Support 15sec! Every contribution helps us keep the platform running and growing. We are committed to building a free, creative space for everyone. Thank you for being part of our community."}
+          </p>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

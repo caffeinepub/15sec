@@ -790,22 +790,19 @@ export function useGetPrincipalByUsername(username: string | null) {
 
 export function useGetDonateText() {
   const { actor, isFetching: actorFetching } = useActor();
-
   return useQuery<string>({
     queryKey: ["donateText"],
     queryFn: async () => {
-      if (!actor) return "";
+      if (!actor) throw new Error("Actor not available");
       return actor.getDonateText();
     },
     enabled: !!actor && !actorFetching,
-    staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useSetDonateText() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (text: string) => {
       if (!actor) throw new Error("Actor not available");

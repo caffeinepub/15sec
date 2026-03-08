@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { Principal } from "@dfinity/principal";
-import { Copy, Loader2, Save, Trash2, UserMinus, UserPlus } from "lucide-react";
+import { Copy, Trash2, UserMinus, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
@@ -130,15 +130,20 @@ export default function AdminDashboardPage() {
   const promoteUserMutation = usePromoteUser();
   const demoteUserMutation = useDemoteUser();
   const deleteAccountMutation = usePermanentlyDeleteAccount();
-  const { data: donateTextData, isLoading: donateTextLoading } =
-    useGetDonateText();
-  const setDonateTextMutation = useSetDonateText();
 
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [actionType, setActionType] = useState<
     "promote" | "demote" | "delete" | null
   >(null);
-  const [donateTextInput, setDonateTextInput] = useState<string>("");
+  const [donateTextInput, setDonateTextInput] = useState("");
+  const { data: currentDonateText } = useGetDonateText();
+  const setDonateTextMutation = useSetDonateText();
+
+  useEffect(() => {
+    if (currentDonateText !== undefined) {
+      setDonateTextInput(currentDonateText);
+    }
+  }, [currentDonateText]);
 
   // Check if current user is the permanent admin — bypass loading state entirely
   const callerPrincipal = identity?.getPrincipal().toString();
@@ -146,19 +151,12 @@ export default function AdminDashboardPage() {
   const isAuthenticated = !!identity;
 
   // Record visit once on page load for authenticated users only
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run once when auth changes
   useEffect(() => {
     if (isAuthenticated && callerPrincipal) {
       recordVisitMutation.mutate();
     }
   }, [isAuthenticated, callerPrincipal]);
-
-  // Sync donate text input when data arrives
-  useEffect(() => {
-    if (donateTextData !== undefined) {
-      setDonateTextInput(donateTextData);
-    }
-  }, [donateTextData]);
 
   const openConfirmDialog = (
     principal: string,
@@ -332,57 +330,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Donate popup text editor */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Donate Popup Text</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {donateTextLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-4/5" />
-            </div>
-          ) : (
-            <>
-              <Textarea
-                value={donateTextInput}
-                onChange={(e) => setDonateTextInput(e.target.value)}
-                placeholder="Enter the text that will appear in the donate popup..."
-                className="min-h-[120px] resize-y"
-                data-ocid="admin.donate_text.textarea"
-              />
-              <div className="flex justify-end">
-                <Button
-                  onClick={async () => {
-                    try {
-                      await setDonateTextMutation.mutateAsync(donateTextInput);
-                      toast.success("Donate text saved successfully");
-                    } catch {
-                      toast.error("Failed to save donate text");
-                    }
-                  }}
-                  disabled={setDonateTextMutation.isPending}
-                  data-ocid="admin.donate_text.save_button"
-                >
-                  {setDonateTextMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save
-                    </>
-                  )}
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader>
           <CardTitle>User Accounts</CardTitle>
@@ -425,6 +372,40 @@ export default function AdminDashboardPage() {
               </TableBody>
             </Table>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Donate Popup Text */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Donate Popup Text</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            This text appears in the donate popup shown to all users when they
+            click the heart button in the header.
+          </p>
+          <Textarea
+            value={donateTextInput}
+            onChange={(e) => setDonateTextInput(e.target.value)}
+            rows={5}
+            placeholder="Enter donate popup text..."
+            data-ocid="admin.donate_text.textarea"
+          />
+          <Button
+            onClick={async () => {
+              try {
+                await setDonateTextMutation.mutateAsync(donateTextInput);
+                toast.success("Donate text updated");
+              } catch {
+                toast.error("Failed to update donate text");
+              }
+            }}
+            disabled={setDonateTextMutation.isPending}
+            data-ocid="admin.donate_text.save_button"
+          >
+            {setDonateTextMutation.isPending ? "Saving..." : "Save"}
+          </Button>
         </CardContent>
       </Card>
 

@@ -168,7 +168,7 @@ export default function VideoUploader({
       {selectedVideo ? (
         <div className="space-y-4">
           <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-            {/* biome-ignore lint/a11y/useMediaCaption: short video content */}
+            {/* biome-ignore lint/a11y/useMediaCaption: user-selected video preview, captions not applicable */}
             <video src={selectedVideo} controls className="w-full h-full" />
           </div>
           <Button

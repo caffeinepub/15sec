@@ -24,7 +24,7 @@ export default function UsernameSetupModal() {
   const { mutate: saveProfile, isPending } = useSaveCallerUserProfile();
   const checkUsername = useCheckUsernameAvailability();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
+  // biome-ignore lint/correctness/useExhaustiveDependencies: checkUsername.mutateAsync is stable
   useEffect(() => {
     const timer = setTimeout(async () => {
       setDebouncedUsername(username);

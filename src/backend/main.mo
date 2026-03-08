@@ -12,8 +12,9 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-
+(with migration = Migration.run)
 actor {
   type VisitorStats = {
     daily : Nat;
@@ -37,13 +38,13 @@ actor {
 
   var nextVideoPostId = 0;
   var nextVideoReplyId = 0;
+  var donateText : Text =
+    "Support 15sec! Every contribution helps us keep the platform running and growing. We are committed to building a free, creative space for everyone. Thank you for being part of our community.";
 
   let dailyVisitors = Map.empty<Int, Set.Set<Principal>>();
   let weeklyVisitors = Map.empty<WeeklyKey, Set.Set<Principal>>();
   let monthlyVisitors = Map.empty<Nat, Set.Set<Principal>>();
   let allTimeVisitors = Set.empty<Principal>();
-
-  var donateText = "Support 15sec! Every contribution helps us keep the platform running and growing. Thank you for being part of our community.";
 
   type WeeklyKey = {
     week : Int;
@@ -1100,12 +1101,15 @@ actor {
   };
 
   public query ({ caller }) func getDonateText() : async Text {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Caller is not a logged-in user.");
+    };
     donateText;
   };
 
   public shared ({ caller }) func setDonateText(text : Text) : async () {
-    if (not callerIsAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins can update donate text");
+    if (not callerHasAdminPermission(caller)) {
+      Runtime.trap("Caller is not an admin.");
     };
     donateText := text;
   };
